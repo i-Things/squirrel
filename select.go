@@ -18,7 +18,7 @@ type selectData struct {
 	From              Sqlizer
 	Joins             []Sqlizer
 	WhereParts        []Sqlizer
-	InterVal          Sqlizer
+	Interval          Sqlizer
 	Fill              string
 	GroupBys          []string
 	HavingParts       []Sqlizer
@@ -117,9 +117,9 @@ func (d *selectData) toSqlRaw() (sqlStr string, args []interface{}, err error) {
 			return
 		}
 	}
-	if d.InterVal != nil {
+	if d.Interval != nil {
 		sql.WriteString(" INTERVAL( ")
-		args, err = appendToSql([]Sqlizer{d.From}, sql, "", args)
+		args, err = appendToSql([]Sqlizer{d.Interval}, sql, "", args)
 		if err != nil {
 			return
 		}
@@ -417,12 +417,8 @@ func (b SelectBuilder) SuffixExpr(expr Sqlizer) SelectBuilder {
 
 // Interval adds an expression to the end of the query
 func (b SelectBuilder) Interval(sql string, args ...interface{}) SelectBuilder {
-	return b.IntervalExpr(Expr(sql, args...))
-}
+	return builder.Set(b, "Interval", newPart(sql, args...)).(SelectBuilder)
 
-// IntervalExpr adds an expression to the end of the query
-func (b SelectBuilder) IntervalExpr(expr Sqlizer) SelectBuilder {
-	return builder.Append(b, "Interval", expr).(SelectBuilder)
 }
 
 // Fill adds an expression to the end of the query
